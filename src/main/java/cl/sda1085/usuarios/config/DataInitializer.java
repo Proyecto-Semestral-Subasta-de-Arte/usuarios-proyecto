@@ -10,7 +10,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 
-public class GlobalExceptionHandler {
+public class DataInitializer {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,String>> handleValidationErrors(
