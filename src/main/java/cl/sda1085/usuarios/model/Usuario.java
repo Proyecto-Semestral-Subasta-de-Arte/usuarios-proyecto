@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "usuarios")
-//Hola mundo, acá estamos elaborando un proyecto.
 
 @Data
 @NoArgsConstructor
