@@ -1,4 +1,4 @@
-package com.proyecto.usuarios_proyecto.config;
+package cl.sda1085.usuarios.config;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

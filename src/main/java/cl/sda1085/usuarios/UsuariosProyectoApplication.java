@@ -1,4 +1,4 @@
-package com.proyecto.usuarios_proyecto;
+package cl.sda1085.usuarios;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,11 +1,9 @@
-package com.proyecto.usuarios_proyecto.controller;
+package cl.sda1085.usuarios.controller;
 
 
-import com.proyecto.usuarios_proyecto.service.UsuarioService;
+import cl.sda1085.usuarios.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

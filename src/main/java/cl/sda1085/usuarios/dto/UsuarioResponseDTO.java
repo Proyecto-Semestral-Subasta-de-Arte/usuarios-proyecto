@@ -1,4 +1,4 @@
-package com.proyecto.usuarios_proyecto.dto;
+package cl.sda1085.usuarios.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

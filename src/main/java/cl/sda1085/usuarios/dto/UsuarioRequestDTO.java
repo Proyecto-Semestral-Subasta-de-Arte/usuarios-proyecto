@@ -1,4 +1,4 @@
-package com.proyecto.usuarios_proyecto.dto;
+package cl.sda1085.usuarios.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

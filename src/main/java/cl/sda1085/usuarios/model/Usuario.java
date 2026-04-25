@@ -1,4 +1,4 @@
-package com.proyecto.usuarios_proyecto.model;
+package cl.sda1085.usuarios.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

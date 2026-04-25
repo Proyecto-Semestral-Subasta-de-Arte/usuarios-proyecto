@@ -1,7 +1,7 @@
-package com.proyecto.usuarios_proyecto.service;
+package cl.sda1085.usuarios.service;
 
-import com.proyecto.usuarios_proyecto.model.Usuario;
-import com.proyecto.usuarios_proyecto.repository.UsuarioRepository;
+import cl.sda1085.usuarios.model.Usuario;
+import cl.sda1085.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
