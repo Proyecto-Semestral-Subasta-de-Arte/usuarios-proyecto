@@ -10,12 +10,10 @@ import lombok.NoArgsConstructor;
 
 public class UsuarioResponseDTO {
 
+    //DTO de salida
     private Long id;
-
     private String nombre;
-
     private String email;
-
     private String rol;
 
 }

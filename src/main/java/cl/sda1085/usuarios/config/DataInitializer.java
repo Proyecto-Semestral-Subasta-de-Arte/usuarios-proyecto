@@ -1,6 +1,10 @@
 package cl.sda1085.usuarios.config;
 
+import cl.sda1085.usuarios.repository.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -8,28 +12,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+@Slf4j
+@Component
+@RequiredArgsConstructor
 
 public class DataInitializer {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String,String>> handleValidationErrors(
-            MethodArgumentNotValidException ex){
-
-
-        Map<String, String> errores = new LinkedHashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errores.put(error.getField(), error.getDefaultMessage()));
-        return  ResponseEntity.badRequest().body(errores);
-    }
-
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String,String>> handleRuntimeException(
-            RuntimeException ex){
-        Map<String, String> error = new LinkedHashMap<>();
-        error.put("error", ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
-    }
+    //Conexión con 'repository'
+    private final UsuarioRepository usuarioRepository;
 
 }

@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 
 public class UsuarioRequestDTO {
 
+    //DTO de entrada
+    //No es necesario el ID, se genera automáticamente
+
     @NotBlank(message = "El nombre es obligatorio.")
     private String nombre;
 
