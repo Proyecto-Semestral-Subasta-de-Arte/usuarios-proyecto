@@ -12,16 +12,17 @@ import lombok.NoArgsConstructor;
 
 public class UsuarioRequestDTO {
 
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "El nombre es obligatorio.")
     private String nombre;
 
-    @Email(message = "Email inválido")
-    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "El email debe tener formato válido")
+    @NotBlank(message = "El email es obligatorio.")
     private String email;
 
-    @NotBlank(message = "La contraseña es obligatoria")
+    @NotBlank(message = "La contraseña es obligatoria.")
     private String password;
 
+    @NotBlank(message = "El rol es obligatorio.")
     private String rol;
 
 }
