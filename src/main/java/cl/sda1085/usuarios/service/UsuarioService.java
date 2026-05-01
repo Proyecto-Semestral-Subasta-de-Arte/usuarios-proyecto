@@ -17,7 +17,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
 
     //Obtener todos con mapeo a DTO
-    public List<UsuarioResponseDTO> obtenerTodosUsuarios(){
+    public List<UsuarioResponseDTO> obtenerTodos(){
         return usuarioRepository.findAll().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
