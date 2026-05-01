@@ -36,10 +36,10 @@ public class UsuarioService {
         usuario.setRol(dto.getRol());
 
         //Guardar en la base de datos
-        Usuario guardado = usuarioRepository.save(usuario);
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         //Devolver la respuesta como DTO
-        return convertirADTO(guardado);
+        return convertirADTO(usuarioGuardado);
     }
 
     //Método auxiliar de conversión (reutilizable)
