@@ -6,37 +6,50 @@ import cl.sda1085.usuarios.model.Usuario;
 import cl.sda1085.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
+    //Obtener todos con mapeo a DTO
     public List<UsuarioResponseDTO> obtenerTodosUsuarios(){
-        List<Usuario> usuarios = usuarioRepository.findAll();
-
-        //Bajo ningún concepto se va a exponer la contraseña
-        return usuarios.stream()
-                .map(usuario -> new UsuarioResponseDTO(
-                        usuario.getId(),
-                        usuario.getNombre(),
-                        usuario.getEmail(),
-                        usuario.getRol()
-                ))
-                .toList();
+        return usuarioRepository.findAll().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Usuario> obtenerPorId(Long id){
-        return usuarioRepository.findById(id);
+    public Optional<UsuarioResponseDTO> obtenerPorId(Long id){
+        return usuarioRepository.findById(id)
+                .map(this::convertirADTO);  //Transforma la entidad encontrada a DTO
     }
 
-    public Usuario guardar(Usuario usuario){
-        return usuarioRepository.save(usuario);
+    public UsuarioResponseDTO guardar(UsuarioRequestDTO dto){
+        Usuario usuario = new Usuario();
+        usuario.setNombre(dto.getNombre());
+        usuario.setEmail(dto.getEmail());
+        usuario.setPassword(dto.getPassword());
+        usuario.setRol(dto.getRol());
+
+        //Guardar en la base de datos
+        Usuario guardado = usuarioRepository.save(usuario);
+
+        //Devolver la respuesta como DTO
+        return convertirADTO(guardado);
+    }
+
+    //Método auxiliar de conversión (reutilizable)
+    private UsuarioResponseDTO convertirADTO(Usuario usuario){
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getRol()
+        );
     }
 
     public Optional<UsuarioResponseDTO> actualizar(Long id, UsuarioRequestDTO dto){
@@ -45,16 +58,19 @@ public class UsuarioService {
             usuarioExistente.setEmail(dto.getEmail());
             usuarioExistente.setRol(dto.getRol());
 
-            //Encriptar contraseña si se incluye en el DTO
-            usuarioExistente.setPassword(passwordEncoder.encode(dto.getPassword()));
             usuarioExistente.setPassword(dto.getPassword());
-
-            //Persistir los cambios en la base de datos
-            Usuario actualizado = usuarioRepository.save(usuarioExistente);
-
-            //Convertir la entidad actualizada al DTO de respuesta
-            return convertirADTO(actualizado);
+            return mapToResponseDTO(usuarioRepository.save(usuarioExistente));
         });
+    }
+
+    //Método de apoyo para evitar repetición del código
+    private UsuarioResponseDTO mapToResponseDTO(Usuario usuario){
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getRol()
+        );
     }
 
     public void eliminar(Long id){
