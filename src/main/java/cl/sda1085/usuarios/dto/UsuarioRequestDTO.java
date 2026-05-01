@@ -15,17 +15,17 @@ public class UsuarioRequestDTO {
     //DTO de entrada
     //No es necesario el ID, se genera automáticamente
 
-    @NotBlank(message = "El nombre es obligatorio.")
+    @NotBlank(message = "El nombre no debe estar vacío.")
     private String nombre;
 
     @Email(message = "El email debe tener formato válido")
-    @NotBlank(message = "El email es obligatorio.")
+    @NotBlank(message = "El email no debe estar vacío.")
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria.")
     private String password;
 
-    @NotBlank(message = "El rol es obligatorio.")
+    @NotBlank(message = "El rol no debe estar vacío.")
     private String rol;
 
 }
