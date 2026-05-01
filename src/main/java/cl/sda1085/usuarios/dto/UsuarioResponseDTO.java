@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 
 public class UsuarioResponseDTO {
 
-    //DTO de salida
+    //DTO de salida (respuesta)
+    //No existen las anotaciones de validación
+
     private Long id;
     private String nombre;
     private String email;
-    private String rol;
+    private String rol;  //Manejar 2-3 roles
 
 }

@@ -1,5 +1,7 @@
 package cl.sda1085.usuarios.service;
 
+import cl.sda1085.usuarios.dto.UsuarioRequestDTO;
+import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
 import cl.sda1085.usuarios.model.Usuario;
 import cl.sda1085.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +17,18 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
-    public List<Usuario> obtenerTodosUsuarios(){
-        return usuarioRepository.findAll();
+    public List<UsuarioResponseDTO> obtenerTodosUsuarios(){
+        List<Usuario> usuarios = usuarioRepository.findAll();
+
+        //Bajo ningún concepto se va a exponer la contraseña
+        return usuarios.stream()
+                .map(usuario -> new UsuarioResponseDTO(
+                        usuario.getId(),
+                        usuario.getNombre(),
+                        usuario.getEmail(),
+                        usuario.getRol()
+                ))
+                .toList();
     }
 
     public Optional<Usuario> obtenerPorId(Long id){
@@ -25,6 +37,24 @@ public class UsuarioService {
 
     public Usuario guardar(Usuario usuario){
         return usuarioRepository.save(usuario);
+    }
+
+    public Optional<UsuarioResponseDTO> actualizar(Long id, UsuarioRequestDTO dto){
+        return usuarioRepository.findById(id).map(usuarioExistente -> {
+            usuarioExistente.setNombre(dto.getNombre());
+            usuarioExistente.setEmail(dto.getEmail());
+            usuarioExistente.setRol(dto.getRol());
+
+            //Encriptar contraseña si se incluye en el DTO
+            usuarioExistente.setPassword(passwordEncoder.encode(dto.getPassword()));
+            usuarioExistente.setPassword(dto.getPassword());
+
+            //Persistir los cambios en la base de datos
+            Usuario actualizado = usuarioRepository.save(usuarioExistente);
+
+            //Convertir la entidad actualizada al DTO de respuesta
+            return convertirADTO(actualizado);
+        });
     }
 
     public void eliminar(Long id){
