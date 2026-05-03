@@ -51,4 +51,26 @@ public class UsuarioController {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorEmail(@PathVariable String email){
+        return usuarioService.obtenerPorEmail(email)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<UsuarioResponseDTO>> buscarUsuariosPorRol(
+            @RequestParam(required = false) String rol,
+            @RequestParam(required = false) String nombre){
+
+        if (rol != null){
+            return ResponseEntity.ok(usuarioService.obtenerPorRol(rol));
+        }
+
+        if (nombre != null){
+            return ResponseEntity.ok(usuarioService.buscarPorNombre(nombre));
+        }
+        return ResponseEntity.ok(usuarioService.obtenerTodos());
+    }
 }

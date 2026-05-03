@@ -16,6 +16,26 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
+    //Método de apoyo para cumplir con el encapsulamiento de datos
+    private UsuarioResponseDTO mapToResponseDTO(Usuario usuario){
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getRol()
+        );
+    }
+
+    //Método auxiliar de conversión (reutilizable)
+    private UsuarioResponseDTO convertirADTO(Usuario usuario){
+        return new UsuarioResponseDTO(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getRol()
+        );
+    }
+
     //Obtener todos con mapeo a DTO
     public List<UsuarioResponseDTO> obtenerTodos(){
         return usuarioRepository.findAll().stream()
@@ -42,16 +62,6 @@ public class UsuarioService {
         return convertirADTO(usuarioGuardado);
     }
 
-    //Método auxiliar de conversión (reutilizable)
-    private UsuarioResponseDTO convertirADTO(Usuario usuario){
-        return new UsuarioResponseDTO(
-                usuario.getId(),
-                usuario.getNombre(),
-                usuario.getEmail(),
-                usuario.getRol()
-        );
-    }
-
     public Optional<UsuarioResponseDTO> actualizar(Long id, UsuarioRequestDTO dto){
         return usuarioRepository.findById(id).map(usuarioExistente -> {
             usuarioExistente.setNombre(dto.getNombre());
@@ -63,22 +73,53 @@ public class UsuarioService {
         });
     }
 
-    //Método de apoyo para evitar repetición del código
-    private UsuarioResponseDTO mapToResponseDTO(Usuario usuario){
-        return new UsuarioResponseDTO(
-                usuario.getId(),
-                usuario.getNombre(),
-                usuario.getEmail(),
-                usuario.getRol()
-        );
-    }
-
     public void eliminar(Long id){
         usuarioRepository.deleteById(id);
     }
 
-    public Usuario findByEmail (String email){
-        return usuarioRepository.findByEmail(email);
+    public Optional<UsuarioResponseDTO> obtenerPorEmail(String email){
+        return usuarioRepository.findByEmail(email)
+                .map(this::convertirADTO);
     }
 
+    public List<UsuarioResponseDTO> obtenerPorRol(String rol){
+        return usuarioRepository.findByRol(rol).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public UsuarioResponseDTO guardarPorEmail(UsuarioRequestDTO dto){
+        if (usuarioRepository.existsByEmail(dto.getEmail())){
+            throw new RuntimeException("El email ya existe en el sistema");
+        }
+
+        Usuario nuevoUsuario = new Usuario();
+        nuevoUsuario.setNombre(dto.getNombre());
+        nuevoUsuario.setEmail(dto.getEmail());
+        nuevoUsuario.setRol(dto.getRol());
+        nuevoUsuario.setPassword(dto.getPassword());  //PENDIENTE: Encriptar con BCrypt
+
+        return mapToResponseDTO(usuarioRepository.save(nuevoUsuario));
+    }
+
+    public List<UsuarioResponseDTO> buscarPorNombre(String nombre){
+        return usuarioRepository.findByNombreContainingIgnoreCase(nombre).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<UsuarioResponseDTO> actualizarPorEmail(Long id, UsuarioRequestDTO dto){
+        return usuarioRepository.findById(id).map(usuario -> {
+            if (usuarioRepository.existsByEmailAndIdNot(dto.getEmail(), id)){
+                throw new RuntimeException("El nuevo email ya está ocupado por otra cuenta.");
+            }
+
+            usuario.setNombre(dto.getNombre());
+            usuario.setEmail(dto.getEmail());
+            usuario.setRol(dto.getRol());
+            usuario.setPassword(dto.getPassword());
+
+            return mapToResponseDTO(usuarioRepository.save(usuario));
+        });
+    }
 }
