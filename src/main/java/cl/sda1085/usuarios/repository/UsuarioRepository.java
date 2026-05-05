@@ -19,7 +19,4 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
 
     //Encuentra nombres que contengan el texto (sin importar mayúsculas)
     List<Usuario> findByNombreContainingIgnoreCase(String nombre);
-
-    //Verifica si un email ya existe, pero ignora al usuario actual
-    boolean existsByEmailAndIdNot(String email, Long id);
 }

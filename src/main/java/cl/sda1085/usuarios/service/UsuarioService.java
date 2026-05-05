@@ -16,7 +16,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
-    //Método de apoyo para cumplir con el encapsulamiento de datos
+    //Método de apoyo para encapsulamiento de datos
     private UsuarioResponseDTO mapToResponseDTO(Usuario usuario){
         return new UsuarioResponseDTO(
                 usuario.getId(),
@@ -36,18 +36,20 @@ public class UsuarioService {
         );
     }
 
-    //Obtener todos con mapeo a DTO
+    //Obtener todos los usuarios con mapeo a DTO
     public List<UsuarioResponseDTO> obtenerTodos(){
         return usuarioRepository.findAll().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    //Obtener usuario por ID
     public Optional<UsuarioResponseDTO> obtenerPorId(Long id){
         return usuarioRepository.findById(id)
                 .map(this::convertirADTO);  //Transforma la entidad encontrada a DTO
     }
 
+    //Crear (guardar) usuario
     public UsuarioResponseDTO guardar(UsuarioRequestDTO dto){
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
@@ -62,6 +64,7 @@ public class UsuarioService {
         return convertirADTO(usuarioGuardado);
     }
 
+    //Actualizar usuario
     public Optional<UsuarioResponseDTO> actualizar(Long id, UsuarioRequestDTO dto){
         return usuarioRepository.findById(id).map(usuarioExistente -> {
             usuarioExistente.setNombre(dto.getNombre());
@@ -73,21 +76,28 @@ public class UsuarioService {
         });
     }
 
+    //Eliminar usuario
     public void eliminar(Long id){
         usuarioRepository.deleteById(id);
     }
 
+
+    //CRUD personalizado
+
+    //Buscar usuario por correo
     public Optional<UsuarioResponseDTO> obtenerPorEmail(String email){
         return usuarioRepository.findByEmail(email)
                 .map(this::convertirADTO);
     }
 
+    //Listar usuario por rol
     public List<UsuarioResponseDTO> obtenerPorRol(String rol){
         return usuarioRepository.findByRol(rol).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    //Registrar nuevo usuario
     public UsuarioResponseDTO guardarPorEmail(UsuarioRequestDTO dto){
         if (usuarioRepository.existsByEmail(dto.getEmail())){
             throw new RuntimeException("El email ya existe en el sistema");
@@ -97,29 +107,15 @@ public class UsuarioService {
         nuevoUsuario.setNombre(dto.getNombre());
         nuevoUsuario.setEmail(dto.getEmail());
         nuevoUsuario.setRol(dto.getRol());
-        nuevoUsuario.setPassword(dto.getPassword());  //PENDIENTE: Encriptar con BCrypt
+        nuevoUsuario.setPassword(dto.getPassword());
 
         return mapToResponseDTO(usuarioRepository.save(nuevoUsuario));
     }
 
+    //Filtrar usuarios por nombre
     public List<UsuarioResponseDTO> buscarPorNombre(String nombre){
         return usuarioRepository.findByNombreContainingIgnoreCase(nombre).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
-    }
-
-    public Optional<UsuarioResponseDTO> actualizarPorEmail(Long id, UsuarioRequestDTO dto){
-        return usuarioRepository.findById(id).map(usuario -> {
-            if (usuarioRepository.existsByEmailAndIdNot(dto.getEmail(), id)){
-                throw new RuntimeException("El nuevo email ya está ocupado por otra cuenta.");
-            }
-
-            usuario.setNombre(dto.getNombre());
-            usuario.setEmail(dto.getEmail());
-            usuario.setRol(dto.getRol());
-            usuario.setPassword(dto.getPassword());
-
-            return mapToResponseDTO(usuarioRepository.save(usuario));
-        });
     }
 }

@@ -5,6 +5,7 @@ import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
 import cl.sda1085.usuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -30,7 +31,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    private ResponseEntity<UsuarioResponseDTO> crear
+    public ResponseEntity<UsuarioResponseDTO> crear
             (@Valid @RequestBody UsuarioRequestDTO dto){
         return ResponseEntity.status(201).body(usuarioService.guardar(dto));
     }
@@ -57,6 +58,16 @@ public class UsuarioController {
         return usuarioService.obtenerPorEmail(email)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/email/{email}")
+    public ResponseEntity<?> registrarPorEmail(@Valid @RequestBody UsuarioRequestDTO dto){
+        try {
+            UsuarioResponseDTO nuevoUsuario = usuarioService.guardarPorEmail(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/buscar")
