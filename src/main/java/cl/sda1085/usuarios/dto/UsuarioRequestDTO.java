@@ -27,5 +27,4 @@ public class UsuarioRequestDTO {
 
     @NotBlank(message = "El rol no debe estar vacío.")
     private String rol;
-
 }

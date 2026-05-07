@@ -38,12 +38,16 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Iniciando la creación de usuarios de prueba...");
 
         //Crear usuarios con los roles requeridos por el proyecto
+
+        //Administrador
         Usuario admin = crearUsuario("Carlos Concha", "cconcha@subastas.cl", "Adm_CarlosC12", "ADMIN");
 
+        //Vendedores
         Usuario vendedor1 = crearUsuario("Isabel Torres", "itorres@subastas.cl", "Ven_IsabelT24", "VENDEDOR");
         Usuario vendedor2 = crearUsuario("Pedro Rivas", "privas@subastas.cl", "Ven_PedroR90", "VENDEDOR");
         Usuario vendedor3 = crearUsuario("Camila Gil", "cgil@subastas.cl", "Ven_CamilaG77", "VENDEDOR");
 
+        //Clientes
         Usuario cliente1 = crearUsuario("Diego Miranda", "dmiranda@gmail.com", "Cli_DiegoM01", "CLIENTE");
         Usuario cliente2 = crearUsuario("Valentina Castro", "vcastro@gmail.com", "Cli_ValenC02", "CLIENTE");
         Usuario cliente3 = crearUsuario("Matias Santos", "msantos@gmail.com", "Cli_MatiasS03", "CLIENTE");

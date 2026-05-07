@@ -36,7 +36,7 @@ public class UsuarioService {
         );
     }
 
-    //Obtener todos los usuarios con mapeo a DTO
+    //Obtener todos los usuarios
     public List<UsuarioResponseDTO> obtenerTodos(){
         return usuarioRepository.findAll().stream()
                 .map(this::mapToResponseDTO)
