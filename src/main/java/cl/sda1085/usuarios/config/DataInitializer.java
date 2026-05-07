@@ -14,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    //Conexión con 'repository'
     private final UsuarioRepository usuarioRepository;
 
     private Usuario crearUsuario(String nombre, String email, String password, String rol){
