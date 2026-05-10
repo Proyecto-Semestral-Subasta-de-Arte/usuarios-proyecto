@@ -5,6 +5,7 @@ import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
 import cl.sda1085.usuarios.model.Usuario;
 import cl.sda1085.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +16,9 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    //Método de apoyo para encapsulamiento de datos
+    //Método de apoyo para convertir entidad a DTO
     private UsuarioResponseDTO mapToResponseDTO(Usuario usuario){
         return new UsuarioResponseDTO(
                 usuario.getId(),
@@ -25,6 +27,7 @@ public class UsuarioService {
                 usuario.getRol()
         );
     }
+
 
     //Método auxiliar de conversión (reutilizable)
     private UsuarioResponseDTO convertirADTO(Usuario usuario){
@@ -49,19 +52,23 @@ public class UsuarioService {
                 .map(this::convertirADTO);  //Transforma la entidad encontrada a DTO
     }
 
-    //Crear (guardar) usuario
+    //Crear (guardar) usuario con encriptación
     public UsuarioResponseDTO guardar(UsuarioRequestDTO dto){
+        if (usuarioRepository.existsByEmail(dto.getEmail())){
+            throw new RuntimeException("El email ya existe en el sistema");
+        }
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
         usuario.setEmail(dto.getEmail());
         usuario.setPassword(dto.getPassword());
         usuario.setRol(dto.getRol());
 
-        //Guardar en la base de datos
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        //Encriptación
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        //Devolver la respuesta como DTO
-        return convertirADTO(usuarioGuardado);
+        //Guardar en la base de datos
+        return mapToResponseDTO(usuarioRepository.save(usuario));
+
     }
 
     //Actualizar usuario
@@ -71,7 +78,8 @@ public class UsuarioService {
             usuarioExistente.setEmail(dto.getEmail());
             usuarioExistente.setRol(dto.getRol());
 
-            usuarioExistente.setPassword(dto.getPassword());
+            // Si el DTO trae una clave, se encripta antes de actualizar
+            usuarioExistente.setPassword(passwordEncoder.encode(dto.getPassword()));
             return mapToResponseDTO(usuarioRepository.save(usuarioExistente));
         });
     }
@@ -97,20 +105,6 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    //Registrar nuevo usuario
-    public UsuarioResponseDTO guardarPorEmail(UsuarioRequestDTO dto){
-        if (usuarioRepository.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("El email ya existe en el sistema");
-        }
-
-        Usuario nuevoUsuario = new Usuario();
-        nuevoUsuario.setNombre(dto.getNombre());
-        nuevoUsuario.setEmail(dto.getEmail());
-        nuevoUsuario.setRol(dto.getRol());
-        nuevoUsuario.setPassword(dto.getPassword());
-
-        return mapToResponseDTO(usuarioRepository.save(nuevoUsuario));
-    }
 
     //Filtrar usuarios por nombre
     public List<UsuarioResponseDTO> buscarPorNombre(String nombre){
@@ -118,4 +112,6 @@ public class UsuarioService {
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
+
+
 }

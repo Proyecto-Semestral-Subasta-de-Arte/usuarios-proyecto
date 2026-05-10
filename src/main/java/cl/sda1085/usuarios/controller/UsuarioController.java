@@ -63,7 +63,7 @@ public class UsuarioController {
     @PostMapping("/email/{email}")
     public ResponseEntity<?> registrarPorEmail(@Valid @RequestBody UsuarioRequestDTO dto){
         try {
-            UsuarioResponseDTO nuevoUsuario = usuarioService.guardarPorEmail(dto);
+            UsuarioResponseDTO nuevoUsuario = usuarioService.guardar(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

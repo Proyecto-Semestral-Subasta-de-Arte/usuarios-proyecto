@@ -24,7 +24,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 255) //Largo para que hash de BCrypt quepa sin problemas
     private String password;
 
     @Column(nullable = false)

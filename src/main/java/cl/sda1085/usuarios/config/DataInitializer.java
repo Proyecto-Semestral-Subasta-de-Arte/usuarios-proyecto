@@ -2,9 +2,11 @@ package cl.sda1085.usuarios.config;
 
 import cl.sda1085.usuarios.model.Usuario;
 import cl.sda1085.usuarios.repository.UsuarioRepository;
+import cl.sda1085.usuarios.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,12 +17,13 @@ import java.util.List;
 public class DataInitializer implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private Usuario crearUsuario(String nombre, String email, String password, String rol){
         Usuario usuario = new Usuario();
         usuario.setNombre(nombre);
         usuario.setEmail(email);
-        usuario.setPassword(password);
+        usuario.setPassword(passwordEncoder.encode(password));
         usuario.setRol(rol);
 
         return usuario;
