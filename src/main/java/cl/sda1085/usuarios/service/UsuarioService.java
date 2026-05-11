@@ -2,9 +2,12 @@ package cl.sda1085.usuarios.service;
 
 import cl.sda1085.usuarios.dto.UsuarioRequestDTO;
 import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
+import cl.sda1085.usuarios.exception.EmailDuplicadoException;
+import cl.sda1085.usuarios.exception.UsuarioNoEncontradoException;
 import cl.sda1085.usuarios.model.Usuario;
 import cl.sda1085.usuarios.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,6 +16,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
@@ -47,15 +52,19 @@ public class UsuarioService {
     }
 
     //Obtener usuario por ID
-    public Optional<UsuarioResponseDTO> obtenerPorId(Long id){
+    public UsuarioResponseDTO obtenerPorId(Long id){
         return usuarioRepository.findById(id)
-                .map(this::convertirADTO);  //Transforma la entidad encontrada a DTO
+                .map(this::convertirADTO)//Transforma la entidad encontrada a DTO
+                .orElseThrow(()-> new UsuarioNoEncontradoException(id));
     }
 
     //Crear (guardar) usuario con encriptación
     public UsuarioResponseDTO guardar(UsuarioRequestDTO dto){
+        log.info("Iniciando proceso de guardado para el usuario con email: {}", dto.getEmail());
+
         if (usuarioRepository.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("El email ya existe en el sistema");
+            log.warn("Intento de registro fallido: El email {} ya existe", dto.getEmail());
+            throw new EmailDuplicadoException(dto.getEmail());
         }
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
@@ -66,13 +75,16 @@ public class UsuarioService {
         //Encriptación
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
+        Usuario guardado = usuarioRepository.save(usuario);
+        log.info("Usuario guardado exitosamente con ID: {}", guardado.getId());
+
         //Guardar en la base de datos
-        return mapToResponseDTO(usuarioRepository.save(usuario));
+        return mapToResponseDTO(guardado);
 
     }
 
     //Actualizar usuario
-    public Optional<UsuarioResponseDTO> actualizar(Long id, UsuarioRequestDTO dto){
+    public UsuarioResponseDTO actualizar(Long id, UsuarioRequestDTO dto){
         return usuarioRepository.findById(id).map(usuarioExistente -> {
             usuarioExistente.setNombre(dto.getNombre());
             usuarioExistente.setEmail(dto.getEmail());
@@ -81,14 +93,14 @@ public class UsuarioService {
             // Si el DTO trae una clave, se encripta antes de actualizar
             usuarioExistente.setPassword(passwordEncoder.encode(dto.getPassword()));
             return mapToResponseDTO(usuarioRepository.save(usuarioExistente));
-        });
+        }).orElseThrow(() -> new UsuarioNoEncontradoException(id));
     }
 
     //Eliminar usuario
     public void eliminar(Long id){
+       log.info("Solicitud para eliminar usuario con ID: {}", id);
         usuarioRepository.deleteById(id);
-    }
-
+        log.info("Usuario con ID: {} eliminado correctamente", id);}
 
     //CRUD personalizado
 
