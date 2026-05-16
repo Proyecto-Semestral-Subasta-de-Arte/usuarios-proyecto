@@ -5,8 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,47 +18,48 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception { // MODIFICACIÓN: Nombre estandarizado según PPT [cite: 299]
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
-                        //Permitir que cualquier persona cree una cuenta
+                        //Registro público de usuarios
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
 
-                        //Solo los administradores pueden ver la lista completa de usuarios
+                        //Listado total de usuarios queda exclusivo para el rol ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
 
-                        //Cualquier otra acción interna (ver por ID, editar, eliminar, ...) requiere login
+                        //Cualquier otra ruta interna requiere autenticación básica
                         .requestMatchers("/api/usuarios/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults());  //Activa la ventana de autenticación básica
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
 
-    //Encriptador de contraseñas oficial (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    //Buscador dinámico de credenciales en la base de datos de MySQL
     @Bean
     public UserDetailsService userDetailsService(UsuarioRepository repository) {
         return email -> {
             cl.sda1085.usuarios.model.Usuario usuario = repository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
 
-            return User.builder()
-                    .username(usuario.getEmail())
-                    .password(usuario.getPassword())  //Aquí la contraseña ya debe estar encriptada en la base de datos
-                    .roles(usuario.getRol())  //Spring le agrega automáticamente "ROLE_" al texto de la base de datos
-                    .build();
+            String rolFinal = "ROLE_" + usuario.getRol().toUpperCase().trim().replace("ROLE_", "");
+
+            return new User(
+                    usuario.getEmail(),
+                    usuario.getPassword(),
+                    AuthorityUtils.createAuthorityList(rolFinal)
+            );
         };
     }
 }
