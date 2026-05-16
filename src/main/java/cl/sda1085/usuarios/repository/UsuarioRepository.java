@@ -8,15 +8,15 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
 
-    //Busca un usuario por su email exacto
+    //Buscar un usuario por su email exacto
     Optional<Usuario> findByEmail (String email);
 
-    //Busca todos los usuarios que tengan un rol específico
+    //Buscar todos los usuarios que tengan un rol específico
     List<Usuario> findByRol(String rol);
 
-    //Verifica si existe un usuario por su email
+    //Verificar si existe un usuario por su email
     boolean existsByEmail(String email);
 
-    //Encuentra nombres que contengan el texto (sin importar mayúsculas)
+    //Encuentrar nombres que contengan el texto (sin importar mayúsculas)
     List<Usuario> findByNombreContainingIgnoreCase(String nombre);
 }

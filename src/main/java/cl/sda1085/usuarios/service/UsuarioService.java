@@ -114,7 +114,7 @@ public class UsuarioService {
     //CRUD personalizado
     //------------------------------
 
-    //Buscar usuario por correo
+    //Buscar usuario por su email
     public Optional<UsuarioResponseDTO> obtenerPorEmail(String email){
         log.info("Buscando usuario por email exacto: {}", email);
         return usuarioRepository.findByEmail(email)
