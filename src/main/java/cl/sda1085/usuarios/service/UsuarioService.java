@@ -89,7 +89,7 @@ public class UsuarioService {
             usuarioExistente.setEmail(dto.getEmail());
             usuarioExistente.setRol(dto.getRol());
 
-            // Si el DTO trae una clave, se encripta antes de actualizar
+            //Si el DTO trae una clave, se encripta antes de actualizar
             log.info("Encriptando nueva contraseña para el usuario ID: {}", id);
             usuarioExistente.setPassword(passwordEncoder.encode(dto.getPassword()));
             return mapToResponseDTO(usuarioRepository.save(usuarioExistente));
@@ -115,25 +115,43 @@ public class UsuarioService {
     //------------------------------
 
     //Buscar usuario por su email
-    public Optional<UsuarioResponseDTO> obtenerPorEmail(String email){
+    public UsuarioResponseDTO obtenerPorEmail(String email){
         log.info("Buscando usuario por email exacto: {}", email);
+
         return usuarioRepository.findByEmail(email)
-                .map(this::mapToResponseDTO);
+                .map(this::mapToResponseDTO)
+                .orElseThrow(() -> new RuntimeException("No se encontró ningún usuario registrado con el email: " + email));
     }
 
     //Listar usuario por rol
     public List<UsuarioResponseDTO> obtenerPorRol(String rol){
         log.info("Filtrando usuarios con rol: {}", rol);
-        return usuarioRepository.findByRol(rol).stream()
+
+        List<UsuarioResponseDTO> resultados = usuarioRepository.findByRol(rol).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+
+        if (resultados.isEmpty()) {
+            log.warn("Filtro por rol fallido: No existen usuarios con el rol {}", rol);
+            throw new RuntimeException("No se encontraron usuarios registrados con el rol: " + rol);
+        }
+
+        return resultados;
     }
 
     //Filtrar usuarios por nombre
     public List<UsuarioResponseDTO> buscarPorNombre(String nombre){
         log.info("Ejecutando buscador parcial de usuarios por nombre: '{}'", nombre);
-        return usuarioRepository.findByNombreContainingIgnoreCase(nombre).stream()
+
+        List<UsuarioResponseDTO> resultados = usuarioRepository.findByNombreContainingIgnoreCase(nombre).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+
+        if (resultados.isEmpty()) {
+            log.warn("Búsqueda parcial vacía: Ningún usuario coincide con '{}'", nombre);
+            throw new RuntimeException("No se encontraron usuarios que coincidan con el nombre: '" + nombre + "'");
+        }
+
+        return resultados;
     }
 }

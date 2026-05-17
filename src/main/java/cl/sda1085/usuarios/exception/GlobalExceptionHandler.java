@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new LinkedHashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("estado", HttpStatus.CONFLICT.value());
-        error.put("error", "Email no disponible");
+        error.put("error", "Email no disponible.");
         error.put("mensaje", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new LinkedHashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("estado", HttpStatus.NOT_FOUND.value());
-        error.put("error", "Usuario no encontrado");
+        error.put("error", "Usuario no encontrado.");
         error.put("mensaje", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
