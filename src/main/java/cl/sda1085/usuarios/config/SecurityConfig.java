@@ -30,6 +30,11 @@ public class SecurityConfig {
                         //Registro público de usuarios
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
 
+                        //Consultar un usuario por ID o por Email de forma pública (WebClient)
+
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/email/{email}").permitAll()
+
                         //Listado total de usuarios queda exclusivo para el rol ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
 
