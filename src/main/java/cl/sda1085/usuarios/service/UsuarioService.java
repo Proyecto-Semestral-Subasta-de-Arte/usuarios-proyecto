@@ -154,4 +154,34 @@ public class UsuarioService {
 
         return resultados;
     }
+
+    public List<UsuarioResponseDTO> filtrarUsuarios(String rol, String nombre) {
+        log.info("Filtrando usuarios al estilo Query Method - Rol: '{}', Nombre: '{}'", rol, nombre);
+
+        List<Usuario> usuarios;
+
+        //Caso 1: Vienen ambos parámetros
+        if (rol != null && !rol.trim().isEmpty() && nombre != null && !nombre.trim().isEmpty()) {
+            usuarios = usuarioRepository.findByRolAndNombreContainingIgnoreCase(rol, nombre);
+        }
+
+        //Caso 2: Solo viene el rol
+        else if (rol != null && !rol.trim().isEmpty()) {
+            usuarios = usuarioRepository.findByRol(rol);
+        }
+
+        //Caso 3: Solo viene el nombre
+        else if (nombre != null && !nombre.trim().isEmpty()) {
+            usuarios = usuarioRepository.findByNombreContainingIgnoreCase(nombre);
+        }
+
+        // Caso 4: No viene ningún parámetro (traer todos)
+        else {
+            usuarios = usuarioRepository.findAll();
+        }
+
+        return usuarios.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
 }

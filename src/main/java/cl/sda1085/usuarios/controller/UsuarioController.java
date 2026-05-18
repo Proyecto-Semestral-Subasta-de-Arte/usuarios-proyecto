@@ -85,14 +85,6 @@ public class UsuarioController {
             @RequestParam(required = false) String rol,
             @RequestParam(required = false) String nombre) {
 
-        if (rol != null) {
-            return ResponseEntity.ok(usuarioService.obtenerPorRol(rol));
-        }
-
-        if (nombre != null) {
-            return ResponseEntity.ok(usuarioService.buscarPorNombre(nombre));
-        }
-
-        return ResponseEntity.ok(usuarioService.obtenerTodos());
+        return ResponseEntity.ok(usuarioService.filtrarUsuarios(rol, nombre));
     }
 }
