@@ -64,9 +64,7 @@ public class UsuarioController {
     //Buscar un usuario por su email
     @GetMapping("/email/{email}")
     public ResponseEntity<UsuarioResponseDTO> obtenerPorEmail(@PathVariable String email) {
-        return usuarioService.obtenerPorEmail(email)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(usuarioService.obtenerPorEmail(email));
     }
 
     //Obtener usuario por rol
