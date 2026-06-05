@@ -4,6 +4,12 @@ import cl.sda1085.usuarios.dto.UsuarioRequestDTO;
 import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
 import cl.sda1085.usuarios.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,33 +36,75 @@ public class UsuarioController {
     //Obtener todos los usuarios
     @GetMapping
     @Operation(summary = "Obtener todos los usuarios", description = "Obtiene una lista de todos los usuarios")
-    public ResponseEntity<List<UsuarioResponseDTO>> obtenerTodos() {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de usuarios recuperada exitosamente",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "No autorizado - Requiere credenciales válidas"),
+            @ApiResponse(responseCode = "403", description = "Prohibido - Se requiere rol ADMIN")
+    })
+        public ResponseEntity<List<UsuarioResponseDTO>> obtenerTodos() {
         return ResponseEntity.ok(usuarioService.obtenerTodos());
     }
 
     //Obtener usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerPorId(@PathVariable Long id) {
+    @Operation (summary = "Obtener usuario por ID", description = "Obtiene un usuario usando su identificador único")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado en la base de datos")
+    })
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorId(
+            @Parameter(description = "ID del usuario", example = "1")
+            @PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
     //Guardar (crear) nuevo usuario
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> crear
-    (@Valid @RequestBody UsuarioRequestDTO dto) {
+    @Operation (summary = "Crea un nuevo usuario", description = "Registra un nuevo usuario en el sistema con el nombre, email, contraseña y rol especificados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "211", description = "Usuario creado de forma exitosa",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Error de validación en los datos de entrada o email ya duplicado")
+    })
+    public ResponseEntity<UsuarioResponseDTO> crear(
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos requeridos para el registro del usuario", required = true)
+    @Valid @RequestBody UsuarioRequestDTO dto) { // Este @RequestBody a secas es el de Spring
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.guardar(dto));
     }
 
     //Actualizar usuario existente
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> actualizar
-    (@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
+    @Operation(summary = "Actualizar un usuario existente", description = "Modifica los datos de un usuario existente identificándolo por su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public ResponseEntity<UsuarioResponseDTO> actualizar(
+            @Parameter(description = "ID del usuario a modificar", required = true, example = "1")
+            @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Nuevos datos para el usuario", required = true)
+            @Valid @RequestBody UsuarioRequestDTO dto) {
         return ResponseEntity.ok(usuarioService.actualizar(id, dto));
     }
 
     //Eliminar usuario
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    @Operation(summary = "Eliminar un usuario", description = "Remueve físicamente de la base de datos al usuario que coincida con el ID proporcionado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuario eliminado de forma exitosa"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public ResponseEntity<Void> eliminar(
+            @Parameter(description = "ID del usuario que se desea eliminar", required = true, example = "2")
+            @PathVariable Long id) {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
@@ -68,27 +116,62 @@ public class UsuarioController {
 
     //Buscar un usuario por su email
     @GetMapping("/email/{email}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerPorEmail(@PathVariable String email) {
+    @Operation(summary = "Buscar usuario por email", description = "Retorna un usuario único basándose en su dirección de correo electrónico exacta.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario localizado exitosamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UsuarioResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "No se encontró ningún usuario con ese email")
+    })
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorEmail(
+            @Parameter(description = "Correo electrónico del usuario a buscar", required = true, example = "cconcha@subas.cl")
+            @PathVariable String email) {
         return ResponseEntity.ok(usuarioService.obtenerPorEmail(email));
     }
 
     //Obtener usuario por rol
     @GetMapping("/rol/{rol}")
-    public ResponseEntity<List<UsuarioResponseDTO>> obtenerPorRol(@PathVariable String rol) {
+    @Operation(summary = "Listar usuarios por rol", description = "Obtiene una sublista de usuarios filtrada de acuerdo al rol ingresado (ej: ADMIN, CLIENTE).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Coincidencias encontradas y listadas",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "No existen usuarios registrados con el rol especificado")
+    })
+    public ResponseEntity<List<UsuarioResponseDTO>> obtenerPorRol(
+            @Parameter(description = "Nombre del rol para filtrar", required = true, example = "CLIENTE")
+            @PathVariable String rol) {
         return ResponseEntity.ok(usuarioService.obtenerPorRol(rol));
     }
 
     //Obtener usuario por nombre
     @GetMapping("/nombre/{nombre}")
-    public ResponseEntity<List<UsuarioResponseDTO>> buscarPorNombre(@PathVariable String nombre) {
+    @Operation(summary = "Buscar usuarios por nombre", description = "Realiza una búsqueda parcial e insensible a mayúsculas de usuarios por su nombre.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Resultados de la búsqueda",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "Ningún usuario coincide con el término de búsqueda")
+    })
+    public ResponseEntity<List<UsuarioResponseDTO>> buscarPorNombre(
+            @Parameter(description = "Texto o parte del nombre a buscar", required = true, example = "Carlos")
+            @PathVariable String nombre) {
         return ResponseEntity.ok(usuarioService.buscarPorNombre(nombre));
     }
 
     //Buscador multiparámetro de usuario
     @GetMapping("/buscar")
+    @Operation(summary = "Buscador multiparámetro", description = "Permite filtrar de forma flexible la base de datos utilizando combinaciones opcionales de rol y nombre.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Filtrado completado con éxito",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class))))
+    })
     public ResponseEntity<List<UsuarioResponseDTO>> buscarUsuariosPorRol(
+            @Parameter(description = "Filtro opcional por rol", required = false, example = "ADMIN")
             @RequestParam(required = false) String rol,
-            @RequestParam(required = false) String nombre) {
+            @Parameter(description = "Filtro opcional por coincidencia de nombre", required = false, example = "Diego")
+            @RequestParam(required = false) String nombre){
 
         return ResponseEntity.ok(usuarioService.filtrarUsuarios(rol, nombre));
     }
