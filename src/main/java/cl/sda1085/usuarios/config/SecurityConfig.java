@@ -27,6 +27,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
 
+                        //Autorización swagger
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs",          // Ruta base del JSON
+                                "/v3/api-docs/**",       // Sub-rutas (incluye swagger-config)
+                                "/doc/**"
+                        ).permitAll()
+
                         //Registro público de usuarios
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
 
@@ -47,6 +56,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+    @org.springframework.context.annotation.Bean
+    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html"
+        );
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

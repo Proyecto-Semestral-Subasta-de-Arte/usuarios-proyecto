@@ -3,6 +3,8 @@ package cl.sda1085.usuarios.controller;
 import cl.sda1085.usuarios.dto.UsuarioRequestDTO;
 import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
 import cl.sda1085.usuarios.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
+@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios")
+
 public class UsuarioController {
 
     //Conexion con 'service'
@@ -25,6 +29,7 @@ public class UsuarioController {
 
     //Obtener todos los usuarios
     @GetMapping
+    @Operation(summary = "Obtener todos los usuarios", description = "Obtiene una lista de todos los usuarios")
     public ResponseEntity<List<UsuarioResponseDTO>> obtenerTodos() {
         return ResponseEntity.ok(usuarioService.obtenerTodos());
     }
