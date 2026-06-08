@@ -18,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
@@ -28,9 +31,23 @@ public class UsuarioController {
     //Conexion con 'service'
     private final UsuarioService usuarioService;
 
+    // Método helper para añadir enlaces individuales de autoreferencia, actualización y eliminación
+    private void agregarEnlacesHipermedia(UsuarioResponseDTO dto) {
+        if (dto != null) {
+            // Enlace al propio recurso (self) -> GET /api/usuarios/{id}
+            dto.add(linkTo(methodOn(UsuarioController.class).obtenerPorId(dto.getId())).withSelfRel());
+            // Enlace alternativo para actualizar este usuario -> PUT /api/usuarios/{id}
+            dto.add(linkTo(methodOn(UsuarioController.class).actualizar(dto.getId(), null)).withRel("actualizar"));
+            // Enlace alternativo para eliminar este usuario -> DELETE /api/usuarios/{id}
+            dto.add(linkTo(methodOn(UsuarioController.class).eliminar(dto.getId())).withRel("eliminar"));
+            // Enlace para volver a la lista general -> GET /api/usuarios
+            dto.add(linkTo(methodOn(UsuarioController.class).obtenerTodos()).withRel("lista-completa"));
+        }
+    }
+
 
     //------------------------------
-    //CRUD estándar
+    //CRUD estándar con HATEOAS
     //------------------------------
 
     //Obtener todos los usuarios
@@ -44,7 +61,9 @@ public class UsuarioController {
             @ApiResponse(responseCode = "403", description = "Prohibido - Se requiere rol ADMIN")
     })
         public ResponseEntity<List<UsuarioResponseDTO>> obtenerTodos() {
-        return ResponseEntity.ok(usuarioService.obtenerTodos());
+        List<UsuarioResponseDTO> usuarios = usuarioService.obtenerTodos();
+        usuarios.forEach(this::agregarEnlacesHipermedia);
+        return ResponseEntity.ok(usuarios);
     }
 
     //Obtener usuario por ID
@@ -59,7 +78,9 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseDTO> obtenerPorId(
             @Parameter(description = "ID del usuario", example = "1")
             @PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.obtenerPorId(id));
+        UsuarioResponseDTO dto = usuarioService.obtenerPorId(id);
+        agregarEnlacesHipermedia(dto);
+        return ResponseEntity.ok(dto);
     }
 
     //Guardar (crear) nuevo usuario
@@ -73,8 +94,10 @@ public class UsuarioController {
     })
     public ResponseEntity<UsuarioResponseDTO> crear(
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos requeridos para el registro del usuario", required = true)
-    @Valid @RequestBody UsuarioRequestDTO dto) { // Este @RequestBody a secas es el de Spring
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.guardar(dto));
+    @Valid @RequestBody UsuarioRequestDTO dto) {
+        UsuarioResponseDTO creado = usuarioService.guardar(dto);
+        agregarEnlacesHipermedia(creado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     //Actualizar usuario existente
@@ -92,7 +115,9 @@ public class UsuarioController {
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Nuevos datos para el usuario", required = true)
             @Valid @RequestBody UsuarioRequestDTO dto) {
-        return ResponseEntity.ok(usuarioService.actualizar(id, dto));
+        UsuarioResponseDTO actualizado = usuarioService.actualizar(id, dto);
+        agregarEnlacesHipermedia(actualizado);
+        return ResponseEntity.ok(actualizado);
     }
 
     //Eliminar usuario
@@ -126,7 +151,9 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseDTO> obtenerPorEmail(
             @Parameter(description = "Correo electrónico del usuario a buscar", required = true, example = "cconcha@subas.cl")
             @PathVariable String email) {
-        return ResponseEntity.ok(usuarioService.obtenerPorEmail(email));
+        UsuarioResponseDTO dto = usuarioService.obtenerPorEmail(email);
+        agregarEnlacesHipermedia(dto);
+        return ResponseEntity.ok(dto);
     }
 
     //Obtener usuario por rol
@@ -141,7 +168,9 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponseDTO>> obtenerPorRol(
             @Parameter(description = "Nombre del rol para filtrar", required = true, example = "CLIENTE")
             @PathVariable String rol) {
-        return ResponseEntity.ok(usuarioService.obtenerPorRol(rol));
+        List<UsuarioResponseDTO> usuarios = usuarioService.obtenerPorRol(rol);
+        usuarios.forEach(this::agregarEnlacesHipermedia);
+        return ResponseEntity.ok(usuarios);
     }
 
     //Obtener usuario por nombre
@@ -156,7 +185,9 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponseDTO>> buscarPorNombre(
             @Parameter(description = "Texto o parte del nombre a buscar", required = true, example = "Carlos")
             @PathVariable String nombre) {
-        return ResponseEntity.ok(usuarioService.buscarPorNombre(nombre));
+        List<UsuarioResponseDTO> usuarios = usuarioService.buscarPorNombre(nombre);
+        usuarios.forEach(this::agregarEnlacesHipermedia);
+        return ResponseEntity.ok(usuarios);
     }
 
     //Buscador multiparámetro de usuario
@@ -173,6 +204,8 @@ public class UsuarioController {
             @Parameter(description = "Filtro opcional por coincidencia de nombre", required = false, example = "Diego")
             @RequestParam(required = false) String nombre){
 
-        return ResponseEntity.ok(usuarioService.filtrarUsuarios(rol, nombre));
+        List<UsuarioResponseDTO> usuarios = usuarioService.filtrarUsuarios(rol, nombre);
+        usuarios.forEach(this::agregarEnlacesHipermedia);
+        return ResponseEntity.ok(usuarios);
     }
 }

@@ -5,11 +5,14 @@ import cl.sda1085.usuarios.repository.UsuarioRepository;
 import cl.sda1085.usuarios.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Component
@@ -37,35 +40,40 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Base de datos de usuarios ya contiene datos. Omitiendo inicialización.");
             return;
         }
-        log.info("Iniciando la creación de usuarios de prueba...");
+        log.info("Generando datos masivos de prueba para el Sistema de Subastas...");
+        List<Usuario> usuariosNuevos = new ArrayList<>();
 
         //Crear usuarios con los roles requeridos por el proyecto
 
         //Administrador
-        Usuario admin = crearUsuario("Carlos Concha", "cconcha@subastas.cl", "Adm_CarlosC12", "ADMIN");
+        usuariosNuevos.add(crearUsuario("Carlos Concha", "cconcha@subas.cl", "Admin_CarlosC01", "ADMIN"));
 
         //Vendedores
-        Usuario vendedor1 = crearUsuario("Isabel Torres", "itorres@subastas.cl", "Ven_IsabelT24", "VENDEDOR");
-        Usuario vendedor2 = crearUsuario("Pedro Rivas", "privas@subastas.cl", "Ven_PedroR90", "VENDEDOR");
-        Usuario vendedor3 = crearUsuario("Camila Gil", "cgil@subastas.cl", "Ven_CamilaG77", "VENDEDOR");
+        usuariosNuevos.add(crearUsuario("Isabel Torres", "itorres@subastas.cl", "Ven_IsabelT24", "VENDEDOR"));
+        usuariosNuevos.add(crearUsuario("Pedro Rivas", "privas@subastas.cl", "Ven_PedroR90", "VENDEDOR"));
+        usuariosNuevos.add(crearUsuario("Camila Gil", "cgil@subastas.cl", "Ven_CamilaG77", "VENDEDOR"));
 
-        //Clientes
-        Usuario cliente1 = crearUsuario("Diego Miranda", "dmiranda@gmail.com", "Cli_DiegoM01", "CLIENTE");
-        Usuario cliente2 = crearUsuario("Valentina Castro", "vcastro@gmail.com", "Cli_ValenC02", "CLIENTE");
-        Usuario cliente3 = crearUsuario("Matias Santos", "msantos@gmail.com", "Cli_MatiasS03", "CLIENTE");
-        Usuario cliente4 = crearUsuario("Pamela Vargas", "pvargas@gmail.com", "Cli_SofiaV04", "CLIENTE");
-        Usuario cliente5 = crearUsuario("Lucas Morales", "lmorales@gmail.com", "Cli_LucasM05", "CLIENTE");
-        Usuario cliente6 = crearUsuario("Martina Dominguez", "mdominguez@gmail.com", "Cli_MartinaD06", "CLIENTE");
-        Usuario cliente7 = crearUsuario("Joaquin Reyes", "jreyes@gmail.com", "Cli_JoaquinR07", "CLIENTE");
-        Usuario cliente8 = crearUsuario("Antonia Medina", "amedina@gmail.com", "Cli_AntoniaM08", "CLIENTE");
-        Usuario cliente9 = crearUsuario("Sebastian Ortiz", "sortiz@gmail.com", "Cli_SebasO09", "CLIENTE");
-        Usuario cliente10 = crearUsuario("Javiera Zamora", "jzamora@gmail.com", "Cli_JaviZ10", "CLIENTE");
+        // Inicializar DataFaker en Español
+        Faker faker = new Faker(new Locale("es"));
 
-        //Guardar todos los usuarios en la base de datos
-        usuarioRepository.saveAll(List.of(admin,
-                vendedor1, vendedor2, vendedor3,
-                cliente1, cliente2, cliente3, cliente4, cliente5, cliente6, cliente7, cliente8, cliente9, cliente10));
+        //Generar 40 Clientes dinámicos con correos realistas comerciales o de subastas
+        for (int i = 1; i <= 40; i++) {
+            String nombreFalso = faker.name().fullName();
+            // Limpieza básica de caracteres para construir el email
+            String apellidoLimpio = faker.name().lastName().toLowerCase()
+                    .replace(" ", "")
+                    .replaceAll("[áéíóúñ]", "a");
 
-        log.info("Se han creado 14 usuarios iniciales con roles: ADMIN, 3 VENDEDOR y 10 CLIENTE.");
+            // Alternamos entre correos gmail y correos de la plataforma de subastas
+            String dominio = (i % 2 == 0) ? "@gmail.com" : "@subastasuser.cl";
+            String emailFalso = apellidoLimpio + i + dominio;
+            String passwordFalsa = "Cli_Pass" + i;
+
+            usuariosNuevos.add(crearUsuario(nombreFalso, emailFalso, passwordFalsa, "CLIENTE"));
+        }
+
+        usuarioRepository.saveAll(usuariosNuevos);
+        log.info("¡Listo! Se han cargado 44 usuarios en la base de datos.");
     }
+
 }
