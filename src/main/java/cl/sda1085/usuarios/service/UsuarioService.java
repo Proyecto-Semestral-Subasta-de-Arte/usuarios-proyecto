@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +40,7 @@ public class UsuarioService {
 
     //Obtener todos los usuarios
     public List<UsuarioResponseDTO> obtenerTodos(){
-        log.info("Buscando la lista completa de usuarios del sistema");
+        log.info("Buscando la lista completa de usuarios del sistema.");
         return usuarioRepository.findAll().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
@@ -120,7 +119,7 @@ public class UsuarioService {
 
         return usuarioRepository.findByEmail(email)
                 .map(this::mapToResponseDTO)
-                .orElseThrow(() -> new RuntimeException("No se encontró ningún usuario registrado con el email: " + email));
+                .orElseThrow(() -> new RuntimeException("No se encontró ningún usuario registrado con el email: " + email + "."));
     }
 
     //Listar usuario por rol
@@ -133,9 +132,8 @@ public class UsuarioService {
 
         if (resultados.isEmpty()) {
             log.warn("Filtro por rol fallido: No existen usuarios con el rol {}", rol);
-            throw new RuntimeException("No se encontraron usuarios registrados con el rol: " + rol);
+            throw new RuntimeException("No se encontraron usuarios registrados con el rol: " + rol + ".");
         }
-
         return resultados;
     }
 
@@ -149,9 +147,8 @@ public class UsuarioService {
 
         if (resultados.isEmpty()) {
             log.warn("Búsqueda parcial vacía: Ningún usuario coincide con '{}'", nombre);
-            throw new RuntimeException("No se encontraron usuarios que coincidan con el nombre: '" + nombre + "'");
+            throw new RuntimeException("No se encontraron usuarios que coincidan con el nombre: '" + nombre + "'.");
         }
-
         return resultados;
     }
 
@@ -175,7 +172,7 @@ public class UsuarioService {
             usuarios = usuarioRepository.findByNombreContainingIgnoreCase(nombre);
         }
 
-        // Caso 4: No viene ningún parámetro (traer todos)
+        //Caso 4: No viene ningún parámetro (traer todos)
         else {
             usuarios = usuarioRepository.findAll();
         }

@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Usuario {
 
     @Id
@@ -24,7 +23,7 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 255) //Largo para que hash de BCrypt quepa sin problemas
+    @Column(nullable = false, length = 255)  //Largo para que hash de BCrypt quepa sin problemas
     private String password;
 
     @Column(nullable = false)

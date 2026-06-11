@@ -10,27 +10,27 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Modelo requerido (JSON) para registrar o actualizar un usuario en el sistema")
+@Schema(description = "Modelo requerido (JSON) para registrar o actualizar un usuario en el sistema.")
 
 public class UsuarioRequestDTO {
 
     //DTO de entrada
     //No es necesario el ID, se genera automáticamente
 
+    @Schema(description = "Nombre completo del usuario.", example = "Juan Perez")
     @NotBlank(message = "El nombre no debe estar vacío.")
-    @Schema(description = "Nombre completo del usuario", example = "Juan Perez")
     private String nombre;
 
-    @Email(message = "El email debe tener formato válido")
+    @Schema(description = "Correo institucional único del usuario.", example = "jperez@gmail.com")
+    @Email(message = "El email debe tener formato válido.")
     @NotBlank(message = "El email no debe estar vacío.")
-    @Schema(description = "Correo institucional único del usuario", example = "jperez@gmail.com")
     private String email;
 
+    @Schema(description = "Clave de acceso.", example = "ClaveSegura123")
     @NotBlank(message = "La contraseña es obligatoria.")
-    @Schema(description = "Clave de acceso", example = "ClaveSegura123")
     private String password;
 
+    @Schema(description = "Rol asignado dentro del sistema.", example = "CLIENTE", allowableValues = {"ADMIN", "VENDEDOR", "CLIENTE"})
     @NotBlank(message = "El rol no debe estar vacío.")
-    @Schema(description = "Rol asignado dentro del sistema", example = "CLIENTE", allowableValues = {"ADMIN", "VENDEDOR", "CLIENTE"})
     private String rol;
 }

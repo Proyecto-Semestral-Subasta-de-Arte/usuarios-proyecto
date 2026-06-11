@@ -53,18 +53,19 @@ public class DataInitializer implements CommandLineRunner {
         usuariosNuevos.add(crearUsuario("Pedro Rivas", "privas@subastas.cl", "Ven_PedroR90", "VENDEDOR"));
         usuariosNuevos.add(crearUsuario("Camila Gil", "cgil@subastas.cl", "Ven_CamilaG77", "VENDEDOR"));
 
-        // Inicializar DataFaker en Español
+        //Inicializar DataFaker en Español
         Faker faker = new Faker(new Locale("es"));
 
-        //Generar 40 Clientes dinámicos con correos realistas comerciales o de subastas
+        //Generar 40 clientes dinámicos con correos realistas comerciales o de subastas
         for (int i = 1; i <= 40; i++) {
             String nombreFalso = faker.name().fullName();
-            // Limpieza básica de caracteres para construir el email
+
+            //Limpieza básica de caracteres para construir el email
             String apellidoLimpio = faker.name().lastName().toLowerCase()
                     .replace(" ", "")
                     .replaceAll("[áéíóúñ]", "a");
 
-            // Alternamos entre correos gmail y correos de la plataforma de subastas
+            //Alternamos entre correos gmail y correos de la plataforma de subastas
             String dominio = (i % 2 == 0) ? "@gmail.com" : "@subastasuser.cl";
             String emailFalso = apellidoLimpio + i + dominio;
             String passwordFalsa = "Cli_Pass" + i;
@@ -75,5 +76,4 @@ public class DataInitializer implements CommandLineRunner {
         usuarioRepository.saveAll(usuariosNuevos);
         log.info("¡Listo! Se han cargado 44 usuarios en la base de datos.");
     }
-
 }

@@ -15,7 +15,6 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 @Hidden
-
 public class GlobalExceptionHandler {
 
     //Error de validación
@@ -28,9 +27,9 @@ public class GlobalExceptionHandler {
                 errores.put(error.getField(), error.getDefaultMessage()));
 
         Map<String, Object> respuesta = new LinkedHashMap<>();
-        respuesta.put("timestamp", LocalDateTime.now());
-        respuesta.put("estado", HttpStatus.BAD_REQUEST.value());
-        respuesta.put("error", "Error de validación");
+        respuesta.put("TIMESTAMP", LocalDateTime.now());
+        respuesta.put("ESTADO", HttpStatus.BAD_REQUEST.value());
+        respuesta.put("ERROR", "Error de validación");
         respuesta.put("detalles", errores);
 
         return ResponseEntity.badRequest().body(respuesta);
@@ -42,10 +41,10 @@ public class GlobalExceptionHandler {
         log.error("Ocurrió un error de negocio: {}", ex.getMessage());
 
         Map<String, Object> error = new LinkedHashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("estado", HttpStatus.BAD_REQUEST.value());
-        error.put("error", "Error de negocio");
-        error.put("mensaje", ex.getMessage());
+        error.put("TIMESTAMP", LocalDateTime.now());
+        error.put("ESTADO", HttpStatus.BAD_REQUEST.value());
+        error.put("ERROR", "Error de negocio");
+        error.put("MENSAJE", ex.getMessage());
 
         return ResponseEntity.badRequest().body(error);
     }
@@ -56,10 +55,10 @@ public class GlobalExceptionHandler {
         log.error("Conflicto de registro: {}", ex.getMessage());
 
         Map<String, Object> error = new LinkedHashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("estado", HttpStatus.CONFLICT.value());
-        error.put("error", "Email no disponible.");
-        error.put("mensaje", ex.getMessage());
+        error.put("TIMESTAMP", LocalDateTime.now());
+        error.put("ESTADO", HttpStatus.CONFLICT.value());
+        error.put("ERROR", "Email no disponible.");
+        error.put("MENSAJE", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -70,10 +69,10 @@ public class GlobalExceptionHandler {
         log.warn("Búsqueda fallida: {}", ex.getMessage());
 
         Map<String, Object> error = new LinkedHashMap<>();
-        error.put("timestamp", LocalDateTime.now());
-        error.put("estado", HttpStatus.NOT_FOUND.value());
-        error.put("error", "Usuario no encontrado.");
-        error.put("mensaje", ex.getMessage());
+        error.put("TIMESTAMP", LocalDateTime.now());
+        error.put("ESTADO", HttpStatus.NOT_FOUND.value());
+        error.put("ERROR", "Usuario no encontrado.");
+        error.put("MENSAJE", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
