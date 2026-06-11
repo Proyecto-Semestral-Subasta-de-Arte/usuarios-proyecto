@@ -29,4 +29,20 @@ public class Usuario {
 
     @Column(nullable = false)
     private String rol;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
 }

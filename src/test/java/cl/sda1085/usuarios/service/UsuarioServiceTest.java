@@ -1,10 +1,9 @@
-package cl.sda1085.usuarios;
+package cl.sda1085.usuarios.service;
 
 
 import cl.sda1085.usuarios.dto.UsuarioResponseDTO;
 import cl.sda1085.usuarios.model.Usuario;
 import cl.sda1085.usuarios.repository.UsuarioRepository;
-import cl.sda1085.usuarios.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

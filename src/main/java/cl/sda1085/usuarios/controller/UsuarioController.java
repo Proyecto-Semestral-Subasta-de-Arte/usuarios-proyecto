@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@RequiredArgsConstructor
+
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios")
 
 public class UsuarioController {
 
-    //Conexion con 'service'
-    private final UsuarioService usuarioService;
+    @Autowired
+    private UsuarioService usuarioService;
+
+
 
     // Método helper para añadir enlaces individuales de autoreferencia, actualización y eliminación
     private void agregarEnlacesHipermedia(UsuarioResponseDTO dto) {
