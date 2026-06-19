@@ -23,6 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@CrossOrigin(origins = "*")
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios")
 
 public class UsuarioController {
